@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '../../../lib/supabase'
 
 type Profile = { id: string; username: string | null; display_name: string | null; bio: string | null; avatar_url: string | null }
 type Post = { id: string; title: string; content: string; category: string; created_at: string }
