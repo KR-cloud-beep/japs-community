@@ -23,25 +23,34 @@ export default function PublicProfilePage() {
   useEffect(() => {
     const load = async () => {
       setLoading(true)
+      const client = supabase
+      if (!client) {
+        setLoading(false)
+        return
+      }
+
       const [{ data: p }, { data: sessionData }] = await Promise.all([
-        supabase.from('profiles').select('id,username,display_name,bio,avatar_url').eq('username', username).maybeSingle(),
-        supabase.auth.getSession(),
+        client.from('profiles').select('id,username,display_name,bio,avatar_url').eq('username', username).maybeSingle(),
+        client.auth.getSession(),
       ])
       setProfile(p)
       const userId = sessionData.session?.user.id ?? null
       setMe(userId)
-      if (!p) { setLoading(false); return }
+      if (!p) {
+        setLoading(false)
+        return
+      }
 
       const [{ data: ps }, { count: followerCount }, { count: followingCount }] = await Promise.all([
-        supabase.from('posts').select('id,title,content,category,created_at').eq('author_id', p.id).order('created_at', { ascending: false }).limit(20),
-        supabase.from('follows').select('follower_id', { count: 'exact', head: true }).eq('following_id', p.id),
-        supabase.from('follows').select('following_id', { count: 'exact', head: true }).eq('follower_id', p.id),
+        client.from('posts').select('id,title,content,category,created_at').eq('author_id', p.id).order('created_at', { ascending: false }).limit(20),
+        client.from('follows').select('follower_id', { count: 'exact', head: true }).eq('following_id', p.id),
+        client.from('follows').select('following_id', { count: 'exact', head: true }).eq('follower_id', p.id),
       ])
       setPosts(ps ?? [])
       setFollowers(followerCount ?? 0)
       setFollowing(followingCount ?? 0)
       if (userId && userId !== p.id) {
-        const { data: relation } = await supabase.from('follows').select('follower_id').eq('follower_id', userId).eq('following_id', p.id).maybeSingle()
+        const { data: relation } = await client.from('follows').select('follower_id').eq('follower_id', userId).eq('following_id', p.id).maybeSingle()
         setIsFollowing(Boolean(relation))
       }
       setLoading(false)
@@ -50,14 +59,19 @@ export default function PublicProfilePage() {
   }, [username])
 
   const toggleFollow = async () => {
-    if (!me || !profile || me === profile.id || busy) return
+    const client = supabase
+    if (!client || !me || !profile || me === profile.id || busy) return
     setBusy(true)
     if (isFollowing) {
-      await supabase.from('follows').delete().eq('follower_id', me).eq('following_id', profile.id)
-      setIsFollowing(false); setFollowers((n) => Math.max(0, n - 1))
+      await client.from('follows').delete().eq('follower_id', me).eq('following_id', profile.id)
+      setIsFollowing(false)
+      setFollowers((n) => Math.max(0, n - 1))
     } else {
-      const { error } = await supabase.from('follows').insert({ follower_id: me, following_id: profile.id })
-      if (!error) { setIsFollowing(true); setFollowers((n) => n + 1) }
+      const { error } = await client.from('follows').insert({ follower_id: me, following_id: profile.id })
+      if (!error) {
+        setIsFollowing(true)
+        setFollowers((n) => n + 1)
+      }
     }
     setBusy(false)
   }
