@@ -1,0 +1,15 @@
+"use client";
+
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { supabase } from "../../lib/supabase";
+
+export default function ProfilePage() {
+  const [user, setUser] = useState<any>(null); const [profile, setProfile] = useState<any>({});
+  const [displayName, setDisplayName] = useState(""); const [username, setUsername] = useState(""); const [bio, setBio] = useState(""); const [message, setMessage] = useState("");
+  useEffect(() => { load(); }, []);
+  async function load() { if (!supabase) return; const { data } = await supabase.auth.getSession(); if (!data.session) return; setUser(data.session.user); const { data: p } = await supabase.from("profiles").select("display_name,username,bio,avatar_url").eq("id", data.session.user.id).single(); if (p) { setProfile(p); setDisplayName(p.display_name ?? ""); setUsername(p.username ?? ""); setBio(p.bio ?? ""); } }
+  async function save(e: FormEvent) { e.preventDefault(); if (!supabase || !user) return; const { error } = await supabase.from("profiles").upsert({ id: user.id, display_name: displayName.trim(), username: username.trim() || null, bio: bio.trim() }); setMessage(error ? error.message : "프로필을 저장했습니다."); if (!error) setProfile({ display_name: displayName, username, bio }); }
+  if (!user) return <main><header className="topbar"><div className="nav-inner"><Link className="brand" href="/"><span className="brand-mark">J</span> 잽스 커뮤니티</Link></div></header><div className="page-wrap"><div className="empty">로그인 후 프로필을 볼 수 있습니다.</div></div></main>;
+  return <main><header className="topbar"><div className="nav-inner"><Link className="brand" href="/"><span className="brand-mark">J</span> 잽스 커뮤니티</Link><nav><Link href="/">홈</Link><Link href="/notifications">알림</Link></nav></div></header><div className="page-wrap"><div className="profile-card"><div className="profile-avatar">{(displayName || user.email || "J").slice(0,1).toUpperCase()}</div><div><span className="eyebrow">MY PROFILE</span><h1>{profile.display_name || "내 프로필"}</h1><p>{user.email}</p></div></div><form className="profile-form" onSubmit={save}><label>표시 이름<input value={displayName} onChange={e => setDisplayName(e.target.value)} maxLength={40}/></label><label>사용자 이름<input value={username} onChange={e => setUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))} maxLength={24} placeholder="japs_user"/></label><label>소개<textarea value={bio} onChange={e => setBio(e.target.value)} rows={5} maxLength={300} placeholder="나를 소개해보세요."/></label><div className="compose-foot"><span>{message}</span><button className="primary">저장</button></div></form></div></main>;
+}
