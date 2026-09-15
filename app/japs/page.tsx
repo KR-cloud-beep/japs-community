@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./page.module.css";
 
 const features = [
   { icon: "💬", title: "자유로운 소통", text: "일상부터 궁금한 이야기까지 부담 없이 나눠보세요." },
@@ -9,69 +10,31 @@ const features = [
 
 export default function JapsHome() {
   return (
-    <main className="japs-home">
-      <header className="japs-home-nav">
-        <Link className="japs-logo" href="/japs"><span>J</span> JAPS</Link>
-        <nav>
-          <a href="#about">잽스 소개</a>
-          <a href="#features">서비스</a>
-          <a href="#vision">방향</a>
-        </nav>
+    <main className={styles.home}>
+      <header className={styles.nav}>
+        <Link className={styles.logo} href="/japs"><span>J</span> JAPS</Link>
+        <nav><a href="#about">잽스 소개</a><a href="#features">서비스</a><a href="#vision">방향</a></nav>
         <Link className="primary small" href="/">커뮤니티 바로가기 →</Link>
       </header>
-
-      <section className="japs-hero">
-        <div className="japs-hero-inner">
+      <section className={styles.hero}>
+        <div className={styles.heroInner}>
           <span className="eyebrow">JAPS · OFFICIAL</span>
           <h1>사람과 이야기를<br /><em>연결하는 공간.</em></h1>
           <p>잽스는 사람들이 편하게 소통하고, 정보를 나누며, 함께 새로운 문화를 만들어가는 커뮤니티 서비스입니다.</p>
-          <div className="hero-actions">
-            <Link className="primary" href="/">잽스 커뮤니티 시작하기 →</Link>
-            <a className="secondary" href="#about">잽스 알아보기</a>
-          </div>
+          <div className="hero-actions"><Link className="primary" href="/">잽스 커뮤니티 시작하기 →</Link><a className="secondary" href="#about">잽스 알아보기</a></div>
         </div>
-        <div className="japs-orbit" aria-hidden="true">
-          <div className="japs-orbit-ring ring-one" />
-          <div className="japs-orbit-ring ring-two" />
-          <div className="japs-orbit-core">J</div>
-          <span className="orbit-dot dot-one">✦</span>
-          <span className="orbit-dot dot-two">•</span>
-          <span className="orbit-dot dot-three">✦</span>
-        </div>
+        <div className={styles.orbit} aria-hidden="true"><div className={`${styles.ring} ${styles.ringOne}`} /><div className={`${styles.ring} ${styles.ringTwo}`} /><div className={styles.core}>J</div><span className={`${styles.dot} ${styles.dotOne}`}>✦</span><span className={`${styles.dot} ${styles.dotTwo}`}>•</span><span className={`${styles.dot} ${styles.dotThree}`}>✦</span></div>
       </section>
-
-      <section id="about" className="japs-section japs-about">
-        <div>
-          <span className="eyebrow">ABOUT JAPS</span>
-          <h2>잽스는 무엇인가요?</h2>
-        </div>
-        <div className="japs-about-copy">
-          <p>잽스는 누구나 편하게 자신의 생각을 이야기하고 다른 사람의 이야기를 발견할 수 있는 온라인 커뮤니티를 만들기 위해 시작되었습니다.</p>
-          <p>처음에는 작은 서비스로 시작하지만, 이용자와 함께 성장하며 오래 사용할 수 있는 공간을 만드는 것이 목표입니다.</p>
-        </div>
+      <section id="about" className={styles.section}>
+        <div><span className="eyebrow">ABOUT JAPS</span><h2>잽스는 무엇인가요?</h2></div>
+        <div className={styles.aboutCopy}><p>잽스는 누구나 편하게 자신의 생각을 이야기하고 다른 사람의 이야기를 발견할 수 있는 온라인 커뮤니티를 만들기 위해 시작되었습니다.</p><p>처음에는 작은 서비스로 시작하지만, 이용자와 함께 성장하며 오래 사용할 수 있는 공간을 만드는 것이 목표입니다.</p></div>
       </section>
-
-      <section id="features" className="japs-section">
-        <div className="japs-section-head"><span className="eyebrow">WHAT WE DO</span><h2>잽스에서 할 수 있는 것</h2></div>
-        <div className="japs-feature-grid">
-          {features.map((feature) => <article className="japs-feature" key={feature.title}><div className="feature-icon">{feature.icon}</div><h3>{feature.title}</h3><p>{feature.text}</p></article>)}
-        </div>
+      <section id="features" className={styles.section}>
+        <div className={styles.sectionHead}><span className="eyebrow">WHAT WE DO</span><h2>잽스에서 할 수 있는 것</h2></div>
+        <div className={styles.featureGrid}>{features.map(feature => <article className={styles.feature} key={feature.title}><div className={styles.icon}>{feature.icon}</div><h3>{feature.title}</h3><p>{feature.text}</p></article>)}</div>
       </section>
-
-      <section id="vision" className="japs-vision">
-        <div className="japs-vision-inner">
-          <span className="eyebrow">OUR DIRECTION</span>
-          <h2>작게 시작하고,<br /><em>함께 크게 만들어갑니다.</em></h2>
-          <p>잽스는 단순히 게시글을 올리는 사이트가 아니라, 사람들이 다시 찾아오고 싶어지는 커뮤니티를 목표로 합니다.</p>
-          <Link className="primary" href="/">커뮤니티로 이동 →</Link>
-        </div>
-      </section>
-
-      <footer className="japs-footer">
-        <strong><span>J</span> JAPS</strong>
-        <p>사람과 이야기를 연결하는 공간.</p>
-        <Link href="/">잽스 커뮤니티</Link>
-      </footer>
+      <section id="vision" className={styles.vision}><div className={styles.visionInner}><span className="eyebrow">OUR DIRECTION</span><h2>작게 시작하고,<br /><em>함께 크게 만들어갑니다.</em></h2><p>잽스는 단순히 게시글을 올리는 사이트가 아니라, 사람들이 다시 찾아오고 싶어지는 커뮤니티를 목표로 합니다.</p><Link className="primary" href="/">커뮤니티로 이동 →</Link></div></section>
+      <footer className={styles.footer}><strong><span>J</span> JAPS</strong><p>사람과 이야기를 연결하는 공간.</p><Link href="/">잽스 커뮤니티</Link></footer>
     </main>
   );
 }
