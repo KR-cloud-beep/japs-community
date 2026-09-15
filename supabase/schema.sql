@@ -7,8 +7,10 @@ create table if not exists public.profiles (
   display_name text,
   avatar_url text,
   bio text,
+  is_guest boolean not null default false,
   created_at timestamptz not null default now()
 );
+alter table public.profiles add column if not exists is_guest boolean not null default false;
 create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
   author_id uuid not null references public.profiles(id) on delete cascade,
@@ -76,25 +78,29 @@ create policy "users delete own follows" on public.follows for delete to authent
 create policy "users read own notifications" on public.notifications for select to authenticated using ((select auth.uid()) = user_id);
 create policy "users update own notifications" on public.notifications for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
--- New Supabase projects no longer auto-expose public tables through the Data API.
 grant usage on schema public to anon, authenticated;
 grant select on public.profiles, public.posts, public.comments, public.likes, public.follows to anon, authenticated;
 grant insert, update, delete on public.profiles, public.posts, public.comments, public.likes, public.follows to authenticated;
 grant select, update on public.notifications to authenticated;
-
 grant usage, select on all sequences in schema public to authenticated;
 
 create index if not exists posts_created_at_idx on public.posts(created_at desc);
 create index if not exists comments_post_id_idx on public.comments(post_id, created_at);
 create index if not exists notifications_user_id_idx on public.notifications(user_id, created_at desc);
+create index if not exists profiles_is_guest_idx on public.profiles(is_guest);
 
 create or replace function public.handle_new_user()
-returns trigger language plpgsql security invoker set search_path = public
+returns trigger language plpgsql security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, username, display_name)
-  values (new.id, null, coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1)))
-  on conflict (id) do nothing;
+  insert into public.profiles (id, username, display_name, is_guest)
+  values (
+    new.id,
+    null,
+    case when coalesce(new.is_anonymous, false) then '익명' else coalesce(new.raw_user_meta_data->>'display_name', split_part(coalesce(new.email, ''), '@', 1)) end,
+    coalesce(new.is_anonymous, false)
+  )
+  on conflict (id) do update set is_guest = excluded.is_guest;
   return new;
 end;
 $$;
